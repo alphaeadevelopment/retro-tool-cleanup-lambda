@@ -1,0 +1,17 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: Retro-tool cleanup lambda
+Resources:
+  doClean:
+    Properties:
+      Handler: dist/bundle.doClean
+      Runtime: nodejs6.10
+      MemorySize: 128
+      Timeout: 15
+      Events:
+        CronSchedule:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0/30 * * * ? *)
+    Type: AWS::Serverless::Function
+Transform: AWS::Serverless-2016-10-31

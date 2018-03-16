@@ -1,0 +1,45 @@
+{
+  "name": "retro-tool-cleanup-lambda",
+  "version": "1.0.0",
+  "description": "Cleanup lambda for retro-tool",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run test:ci -- --watch",
+    "test:ci": "mocha-webpack --glob \"*.spec.js*\" --reporter mochawesome --require mocha.setup.js --reporter-options reportDir=mochawesome-report-unit --recursive retro-tool-lambda",
+    "test:it": "npm run test:it:ci -- --watch",
+    "test:it:ci": "cross-env mocha-webpack --glob \"*.spec.it.js*\" --reporter mochawesome --require mocha.setup.js --reporter-options reportDir=mochawesome-report-unit --recursive retro-tool-lambda",
+    "deploy": "cross-env STACK_SUFFIX='' MONGODB_URL=${MONGODB_PROD_URL} DATABASE_NAME=${DATABASE_NAME_PROD} npm run build:and:deploy",
+    "deploy:test": "cross-env STACK_SUFFIX='-test' MONGODB_URL=${MONGODB_TEST_URL} DATABASE_NAME=${DATABASE_NAME_TEST} npm run build:and:deploy",
+    "build:and:deploy": "npm run build && npm run redeploy",
+    "redeploy": "npm run package:cf && npm run deploy:cf",
+    "package:cf": "aws --profile ${AWS_PROFILE:-default} cloudformation package --template-file template.yaml --s3-bucket ${RETRO_TOOL_CLEANUP_LAMBDA_S3_BUCKET} --output-template-file dist/packaged-template.yaml",
+    "deploy:cf": "aws --profile ${AWS_PROFILE:-default} cloudformation deploy --template-file dist/packaged-template.yaml --stack-name ${RETRO_TOOL_CLEANUP_STACK_NAME}${STACK_SUFFIX} --capabilities CAPABILITY_IAM",
+    "build": "webpack",
+    "build:prod": "NODE_ENV=production npm run build",
+    "build:watch": "npm run build -- --watch"
+  },
+  "author": "Graham King <gking2224@gmail.com>",
+  "license": "ISC",
+  "devtool": "source-map",
+  "dependencies": {
+    "lodash": "^4.17.5",
+    "mongodb": "^3.0.4"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-eslint": "^8.2.2",
+    "babel-loader": "^7.1.3",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "chai": "^4.1.2",
+    "cross-env": "^5.1.3",
+    "eslint": "^4.18.1",
+    "eslint-config-airbnb": "^16.1.0",
+    "mocha": "^4.1.0",
+    "mocha-webpack": "^1.0.1",
+    "mochawesome": "^3.0.2",
+    "sinon": "^4.4.2",
+    "sinon-chai": "^2.14.0",
+    "webpack": "^3.11.0"
+  }
+}
